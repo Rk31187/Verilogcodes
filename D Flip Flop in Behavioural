@@ -1,0 +1,69 @@
+//////////////////////////////////////////////////////                D Flip Flop              ////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+************************************************************           D Flip Flop using Behavioural         **********************************************************************************
+
+
+module D_ff(clk,rst,din,q,qb);
+input rst,clk,din;
+output reg q;
+output qb;
+	always@(posedge clk)
+		begin
+		if(rst)
+		 q <=1'b0;
+			else
+			q<=din;
+		end
+							assign qb=~q;
+
+endmodule
+
+
+
+
+*****************************************************************         TestBench       ***************************************************************************************
+
+
+
+module Dff_tb();
+	reg rst,clk,din;
+	wire q,qb;
+	
+D_ff DUT(clk,rst,din,q,qb);
+	initial
+		begin
+		clk=1'b0;
+		forever 
+		#10 clk=~clk;
+		end
+		
+task rst_DUT();
+	begin
+		@(negedge clk);
+		rst=1'b1;
+		@(negedge clk);
+		rst=1'b0;
+	end
+endtask
+
+task t1(input reg a);
+	begin
+	@(negedge clk);
+   din=a;
+	end
+endtask
+
+initial
+	begin
+	rst_DUT;
+   t1(1'b0);
+	t1(1'b1);
+	t1(1'b0);
+	t1(1'b1);
+	#10;
+	$finish;
+	end
+endmodule	
