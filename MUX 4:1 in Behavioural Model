@@ -1,0 +1,123 @@
+/////////////////////////////////////////////////////        MUX 4:1  in Behavioural Model    /////////////////////////////////////////////////////////////////////////
+
+
+
+*****************************************************        Mux 4:1   RTL  *********************************************************************
+
+
+module mux4_1(input [3:0]i,input [1:0]s, output reg y);
+	always@(i,s)
+		begin
+			case(s)
+			2'b00 : y = i[0];
+			2'b01 : y = i[1];
+			2'b10 : y = i[2];
+			2'b11 : y = i[3];
+			endcase
+		end
+endmodule
+
+
+
+
+
+***********************************************************  TB  *************************************************************************************
+
+
+
+module mux4_1_tb();
+	reg[3:0]i;
+	reg[1:0]s;
+	wire y;
+integer j,k;
+mux4_1 DUT(i,s,y);
+task initialize;
+	begin
+	{i,s}=0;
+	end
+endtask
+
+task t1;
+	begin
+	for(j=0;j<16;j=j+1)
+		begin
+		{i}=j;
+		#10;
+		end
+	end
+endtask
+	initial
+		begin
+		t1;
+		end
+
+task t2;
+	begin
+	for(k=0;k<4;k=k+1)
+		begin
+		{s}=k;
+		#10;
+		end
+	end
+endtask
+
+initial
+		begin
+		t2;
+		end
+		
+initial
+$monitor("input i=%b, s=%b , output y=%b", i,s,y);
+initial
+	begin
+	#300 $finish;
+	end
+endmodule
+
+
+
+
+
+			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
