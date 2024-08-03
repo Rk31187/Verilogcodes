@@ -1,0 +1,60 @@
+****************************************************************** RS latch in NOR ***************************************************************************************
+
+
+
+
+////////////////////////////////////////////////////////////////// RTL Code ////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+module RS_latch( r,s, q,qb);
+	input r,s;
+	output q,qb;
+	wire w1,w2;
+	
+	nor n1(q,r,w2);
+	nor n2(qb,s,w1);
+	
+	assign w1=q;
+	assign w2=qb;
+endmodule
+
+
+///////////////////////////////////////////////////////////////// Test Bench ////////////////////////////////////////////////////////////////////////////
+
+
+
+module RS_latch_tb();
+	reg r,s;
+	wire q,qb;
+	
+RS_latch DUT(r,s,q,qb);
+
+task initialize;
+	begin
+	{r,s}=0;
+	end
+endtask
+
+task t1(input m,n);
+	begin
+	r=m;
+	s=n;
+	////
+	end
+endtask
+
+initial
+	begin
+	t1(1'b0,1'b1);
+	#10;
+	end
+initial	
+$monitor("input r=%b,s=%b, output q=%b,qb=%b" , r,s,q,qb);
+initial
+	begin
+	#1000 $finish;
+	end
+endmodule
+
+	
