@@ -1,0 +1,85 @@
+***************************************************************    JK Flip Flop    ********************************************************************************
+
+
+
+//////////////////////////////////////////////////////////////  JK Flip Flop in Behavioural ///////////////////////////////////////////////////////////////////////
+
+
+module JK_FF(input clk,rst,j,k, output reg q,output qb);
+	always@(posedge clk)
+		begin
+			if(rst)
+		    q=1'b0;
+		case({j,k})
+		2'b00 : q = q;
+		2'b01 : q = 1'b1;
+		2'b00 : q = 1'b0;
+		2'b00 : q = ~q;
+		endcase
+		end
+		assign qb=~q;
+endmodule
+
+
+
+
+
+
+//////////////////////////////////////////////////////////// Test Bench //////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+module JK_FF_tb();
+	reg clk,rst,j,k;
+	wire q,qb;
+	
+JK_FF DUT(clk,rst,j,k,q,qb);
+	
+	initial
+		begin
+		clk=1'b0;
+			forever
+			#10 clk=~clk;
+		end
+		
+task rst_DUT();
+	begin
+	@(negedge clk);
+	rst=1'b1;
+	@(negedge clk);
+	rst=1'b0;
+	end
+	endtask
+	
+task t1(input m,n);
+	begin
+	@(negedge clk);
+	j=m;
+	k=n;
+	end
+endtask
+	initial 
+		begin
+		rst_DUT;
+		t1(1'b0,1'b1);
+		#10;
+		t1(1'b1,1'b0);
+		#10;
+		
+		rst_DUT;
+		t1(1'b0,1'b1);
+		#10;
+		t1(1'b1,1'b0);
+		#10;
+		
+		end
+initial
+$monitor("input clk=%b,rst=%b,j=%b,k=%b, ouput q=%b,qb=%b", clk,rst,j,k,q,qb);
+initial
+begin
+#100 $finish;
+end
+		
+endmodule
