@@ -77,7 +77,7 @@ initial
 end
 
 initial
-$monitor("input clk=%b,rst=%b,output q1=%b,q2=%b",clk,rst,q1,q2);
+$monitor($time,"input clk=%b,rst=%b,output q1=%b,q2=%b",clk,rst,q1,q2);
 initial
 	begin
 	#1000 $finish;
