@@ -1,0 +1,109 @@
+/////////////////////////////////////////////////////////////////////////RAM16X8////////////////////////////////////////////////////////////////////////
+
+
+
+*************************************************************************RTL code************************************************************************
+
+
+module ram16_8(rst,clk,wr_enb,wr_addr,data_in,rd_enb,rd_addr,data_out);
+input rst,clk,wr_enb,rd_enb;
+input [3:0]wr_addr,rd_addr;
+input [7:0]data_in;
+output reg [7:0]data_out;
+integer i;
+reg [7:0]mem[15:0];
+always@(posedge clk)
+begin
+ if(rst)
+ begin
+	  data_out=8'b00000000;
+		 for(i=0;i<16;i=i+1)
+		 begin
+			 mem[i]=0;
+		 end
+	end
+
+ else
+	begin
+	if(wr_enb==2)
+		mem[wr_addr]=data_in;
+	else
+		mem[wr_addr]=mem[wr_addr];
+	if(rd_enb==2)
+		 data_out=mem[rd_addr];
+	end
+end
+endmodule
+
+
+
+
+
+***************************************************************************TB*********************************************************************************
+
+
+module ram16_8tb();
+reg rst,clk,wr_enb,rd_enb;
+reg [3:0]wr_addr,rd_addr;
+reg [7:0]data_in;
+wire [7:0]data_out;
+integer i;
+ram16_8 dut(rst,clk,wr_enb,wr_addr,data_in,rd_enb,rd_addr,data_out);
+initial 
+begin
+	clk=1'b0;
+forever
+#5 clk=~clk;
+end
+
+task initalize;
+	begin
+		rst=0;
+		wr_enb=0;
+		wr_addr=0;
+		rd_enb=0;
+		rd_addr=0;
+	end
+endtask
+task re_set;
+	begin
+		@(negedge clk)
+		rst=1'b1;
+		@(negedge clk)
+		rst=1'b0;
+	end
+endtask
+
+task read(input re,input [3:0]ra);
+	begin
+		@(negedge clk)
+		rd_enb=re;
+		
+		rd_addr=ra;
+	end
+endtask
+
+task write(input we,input [3:0]wa,input [7:0]data);
+	begin
+		@(negedge clk)
+		wr_enb=we;
+		wr_addr=wa;
+		data_in=data;
+	end
+endtask
+
+initial
+begin
+	initalize;
+	re_set;
+	for(i=0;i<16;i=i+1)
+	begin
+		write(1,i,i);
+	end
+
+	for(i=0;i<16;i=i+1)
+	begin
+		read(1,i);
+	end
+end
+endmodule
