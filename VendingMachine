@@ -1,0 +1,174 @@
+////////////////////////////////////////////////////////////////////////////////////////VendingMachine///////////////////////////////////////////////////////////////////
+
+
+
+*****************************************************************************************RTL code********************************************************************************
+
+
+module vm(clk, rst, j, k, x, y);
+  input clk, rst;
+  input j, k;
+  output reg x, y;
+  reg [1:0] state, next_state;
+
+  parameter IDLE = 2'b00,
+            S1   = 2'b01,
+            S2   = 2'b10;
+
+  always @(posedge clk) 
+	begin
+    if (rst)
+	 begin
+      state <= IDLE;
+    end 
+	 else begin
+      state <= next_state;
+    end
+  end
+
+  always @(state, j, k) 
+  begin
+    next_state = IDLE;  
+    case (state)
+      IDLE:
+		begin
+        if (j == 1 && k == 0) 
+		  begin
+          next_state = S1;
+        end 
+		  else if (j == 1 && k == 1)
+		  begin
+          next_state = S2;
+        end 
+		  else begin
+          next_state = IDLE;
+        end
+      end
+      S1: begin
+        if (j == 1 && k == 0) 
+		  begin
+          next_state = S2;
+        end 
+		  else if (j == 1 && k == 1)
+		  begin
+          next_state = IDLE;
+        end 
+		  else begin
+          next_state = S1;
+        end
+      end
+      S2: begin
+        if (j == 1 && k == 0)
+		  begin
+          next_state = IDLE;
+        end else if (j == 1 && k == 1) 
+		  begin
+          next_state = IDLE;
+        end 
+		  else begin
+          next_state = S2;
+        end
+      end
+    endcase
+  end
+
+  always @(posedge clk) 
+  begin
+    if (rst) 
+	 begin
+      x <= 0;
+      y <= 0;
+    end 
+	 else begin
+      case (state)
+        IDLE:
+		  begin
+          x <= 0; y <= 0;
+        end
+        S1: begin
+          if (j == 1 && k == 0)
+			 begin
+            x <= 0; y <= 0;
+          end 
+			 else if (j == 1 && k == 1)
+			 begin
+            x <= 1; y <= 0;
+          end
+			 else begin
+            x <= 0; y <= 0;
+          end
+        end
+        S2: begin
+          if (j == 1 && k == 0) 
+			 begin
+            x <= 1; y <= 0;
+          end 
+			 else if (j == 1 && k == 1)
+			 begin
+            x <= 1; y <= 1;
+          end 
+			 else begin
+            x <= 0; y <= 0;
+          end
+        end
+      endcase
+    end
+  end
+endmodule
+
+
+
+
+
+
+
+
+
+
+
+******************************************************************************TB*******************************************************************************
+
+
+
+module vendingmachine_tb();
+reg clk,rst,j,k;
+wire x,y;
+
+vm DUT(clk,rst,j,k,x,y);
+
+initial
+	begin
+  clk=1'b0;
+  forever
+  #5 clk=~clk;
+  end
+  
+initial
+	begin
+	rst = 1; j = 0; k = 0;
+    #15 rst = 0;
+
+    // Test case 1: j=1, k=0; expect transition to S1 and x=0, y=0
+    #10 j = 1; k = 0;
+    #10 j = 0; k = 0;
+
+    // Test case 2: j=1, k=1; expect transition to S2 and x=1, y=0
+    #10 j = 1; k = 1;
+    #10 j = 0; k = 0;
+
+    // Test case 3: j=1, k=0; expect transition to IDLE and x=1, y=1
+    #10 j = 1; k = 0;
+    #10 j = 0; k = 0;
+
+    // Test case 4: Reset the system
+    #10 rst = 1;
+    #10 rst = 0;
+
+    #20 $finish;
+  end
+
+  initial begin
+    $monitor("Time: %0t | rst=%b j=%b k=%b | x=%b y=%b", $time, rst, j, k, x, y);
+  end
+
+endmodule
